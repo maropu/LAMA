@@ -103,14 +103,14 @@ class Bert(Base_Connector):
 
         return indexed_string
 
-    def __get_input_tensors_batch(self, sentences_list):
+    def get_input_tensors_batch(self, sentences_list):
         tokens_tensors_list = []
         segments_tensors_list = []
         masked_indices_list = []
         tokenized_text_list = []
         max_tokens = 0
         for sentences in sentences_list:
-            tokens_tensor, segments_tensor, masked_indices, tokenized_text = self.__get_input_tensors(sentences)
+            tokens_tensor, segments_tensor, masked_indices, tokenized_text = self.get_input_tensors(sentences)
             tokens_tensors_list.append(tokens_tensor)
             segments_tensors_list.append(segments_tensor)
             masked_indices_list.append(masked_indices)
@@ -151,7 +151,7 @@ class Bert(Base_Connector):
         # print(final_attention_mask.shape)
         return final_tokens_tensor, final_segments_tensor, final_attention_mask, masked_indices_list, tokenized_text_list
 
-    def __get_input_tensors(self, sentences):
+    def get_input_tensors(self, sentences):
 
         if len(sentences) > 2:
             print(sentences)
@@ -197,7 +197,7 @@ class Bert(Base_Connector):
 
         return tokens_tensor, segments_tensors, masked_indices, tokenized_text
 
-    def __get_token_ids_from_tensor(self, indexed_string):
+    def get_token_ids_from_tensor(self, indexed_string):
         token_ids = []
         if self.map_indices is not None:
             # map indices to subset of the vocabulary
@@ -217,7 +217,7 @@ class Bert(Base_Connector):
         if try_cuda:
             self.try_cuda()
 
-        tokens_tensor, segments_tensor, attention_mask_tensor, masked_indices_list, tokenized_text_list = self.__get_input_tensors_batch(sentences_list)
+        tokens_tensor, segments_tensor, attention_mask_tensor, masked_indices_list, tokenized_text_list = self.get_input_tensors_batch(sentences_list)
 
         if logger is not None:
             logger.debug("\n{}\n".format(tokenized_text_list))
@@ -233,7 +233,7 @@ class Bert(Base_Connector):
 
         token_ids_list = []
         for indexed_string in tokens_tensor.numpy():
-            token_ids_list.append(self.__get_token_ids_from_tensor(indexed_string))
+            token_ids_list.append(self.get_token_ids_from_tensor(indexed_string))
 
         return log_probs, token_ids_list, masked_indices_list
 
@@ -245,7 +245,7 @@ class Bert(Base_Connector):
         if try_cuda:
             self.try_cuda()
 
-        tokens_tensor, segments_tensor, attention_mask_tensor, masked_indices_list, tokenized_text_list = self.__get_input_tensors_batch(sentences_list)
+        tokens_tensor, segments_tensor, attention_mask_tensor, masked_indices_list, tokenized_text_list = self.get_input_tensors_batch(sentences_list)
 
         with torch.no_grad():
             all_encoder_layers, _ = self.bert_model(
